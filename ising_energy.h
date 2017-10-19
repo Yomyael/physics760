@@ -1,6 +1,8 @@
 #ifndef ISING_ENERGY_H
 #define ISING_ENERGY_H
 
+#include <stdlib.h>
+
 typedef struct lattice {
   int x_max;
   int y_max;
