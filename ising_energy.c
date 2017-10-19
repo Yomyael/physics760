@@ -9,33 +9,70 @@
 gsl_rng *set_zufall(int sec);
 
 int main () {
-  gsl_rng *rand = set_zufall(0);
-  lattice *test = create_lattice(3, 3);
-  int i;
-  for(i = 0; i < 9; i++) {
-    if (gsl_rng_uniform(rand) < 0.5){
-      test->spin[i] = -1;
-    }
-    else {
-      test->spin[i] = 1;
-    }
-  }
-  for(i = 0; i < 9; i++){
-    printf("%i\t", test->spin[i]);
-    if((i+1)%test->x_max == 0){
-      printf("\n");
-    }
-  }
+  lattice *test = create_lattice(10, 20, 1);
+  rand_spin(test);
+  for(int j = 0; j < 10; j++) printf("%lf\n", e_tot(test));
   return 0;
 }
 
+void rand_spin(lattice *lat){
+  gsl_rng *r = set_zufall(0);
+  int i;
+  for(i = 0; i < (lat->y_max)*(lat->x_max); i++) {
+    if (gsl_rng_uniform(r) < 0.5){
+      lat->spin[i] = -1;
+    }
+    else {
+      lat->spin[i] = 1;
+    }
+  }
+
+}
+
+double e_tot(lattice *lat){
+  int x_max = lat->x_max, y_max = lat->y_max, *spin = lat->spin;
+  double J = lat->J;
+  double e = 0;
+  for (int i = 0; i < y_max*x_max; i++){
+    if (i - x_max < 0){
+      if (i == 0){
+        e += J*spin[i]*(spin[i+1]+spin[i+x_max]);
+      } else
+      if (i == x_max-1){
+        e += J*spin[i]*(spin[i-1]+spin[i+x_max]);
+      } else {
+        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i+x_max]);
+      }
+    } else
+    if (i + x_max >= x_max*y_max){
+      if (i%x_max == 0){
+        e += J*spin[i]*(spin[i+1]+spin[i-x_max]);
+      } else
+      if ((i+1)%x_max == 0){
+        e += J*spin[i]*(spin[i-1]+spin[i-x_max]);
+      } else {
+        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i-x_max]);
+      }
+    } else
+    if (i%x_max == 0){
+      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max]);
+    } else
+    if ((i+1)%x_max == 0){
+      e += J*spin[i]*(spin[i-x_max]+spin[i-1]+spin[i+x_max]);
+    } else {
+      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max]+spin[i-1]);
+    }
+  }
+  return e;
+}
 
 
-lattice *create_lattice(int x_max, int y_max) {
+lattice *create_lattice(int x_max, int y_max, double J) {
   lattice *tmp = malloc(sizeof(lattice));
   tmp->spin = malloc(x_max*y_max*sizeof(int));
   tmp->x_max = x_max;
   tmp->y_max = y_max;
+  tmp->J = J;
   return tmp;
 }
 

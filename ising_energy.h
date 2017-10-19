@@ -7,9 +7,11 @@ typedef struct lattice {
   int x_max;
   int y_max;
   int *spin;
+  double J;
 } lattice;
 
-lattice *create_lattice(int x_max, int y_max);
-
+lattice *create_lattice(int x_max, int y_max, double J);
+void rand_spin(lattice *lat);
+double e_tot(lattice *lat);
 
 #endif
