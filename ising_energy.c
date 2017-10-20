@@ -10,13 +10,15 @@ gsl_rng *set_zufall(int sec);
 
 int main () {
   lattice *test = create_lattice(10, 20, 1);
-  rand_spin(test);
-  for(int j = 0; j < 10; j++) printf("%lf\n", e_tot(test));
+  gsl_rng *r = set_zufall(0);
+  for(int j = 0; j < 10; j++) {
+    printf("%lf\n", e_tot(test));
+    rand_spin(test, r);
+  }
   return 0;
 }
 
-void rand_spin(lattice *lat){
-  gsl_rng *r = set_zufall(0);
+void rand_spin(lattice *lat, gsl_rng *r){
   int i;
   for(i = 0; i < (lat->y_max)*(lat->x_max); i++) {
     if (gsl_rng_uniform(r) < 0.5){
@@ -36,34 +38,34 @@ double e_tot(lattice *lat){
   for (int i = 0; i < y_max*x_max; i++){
     if (i - x_max < 0){
       if (i == 0){
-        e += J*spin[i]*(spin[i+1]+spin[i+x_max]);
+        e += J*spin[i]*(spin[i+1]+spin[i+x_max])/2;
       } else
       if (i == x_max-1){
-        e += J*spin[i]*(spin[i-1]+spin[i+x_max]);
+        e += J*spin[i]*(spin[i-1]+spin[i+x_max])/2;
       } else {
-        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i+x_max]);
+        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i+x_max])/3;
       }
     } else
     if (i + x_max >= x_max*y_max){
       if (i%x_max == 0){
-        e += J*spin[i]*(spin[i+1]+spin[i-x_max]);
+        e += J*spin[i]*(spin[i+1]+spin[i-x_max])/2;
       } else
       if ((i+1)%x_max == 0){
-        e += J*spin[i]*(spin[i-1]+spin[i-x_max]);
+        e += J*spin[i]*(spin[i-1]+spin[i-x_max])/2;
       } else {
-        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i-x_max]);
+        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i-x_max])/3;
       }
     } else
     if (i%x_max == 0){
-      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max]);
+      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max])/3;
     } else
     if ((i+1)%x_max == 0){
-      e += J*spin[i]*(spin[i-x_max]+spin[i-1]+spin[i+x_max]);
+      e += J*spin[i]*(spin[i-x_max]+spin[i-1]+spin[i+x_max])/3;
     } else {
-      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max]+spin[i-1]);
+      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max]+spin[i-1])/4;
     }
   }
-  return e;
+  return -e;
 }
 
 

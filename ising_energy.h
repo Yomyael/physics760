@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include <gsl/gsl_rng.h>
+
 typedef struct lattice {
   int x_max;
   int y_max;
@@ -11,7 +13,7 @@ typedef struct lattice {
 } lattice;
 
 lattice *create_lattice(int x_max, int y_max, double J);
-void rand_spin(lattice *lat);
+void rand_spin(lattice *lat, gsl_rng *r);
 double e_tot(lattice *lat);
 
 #endif
