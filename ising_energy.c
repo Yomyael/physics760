@@ -3,18 +3,20 @@
 
 #include "ising_energy.h"
 #include <stdio.h>
-#include <gsl/gsl_rng.h>
 #include <time.h>
 
 gsl_rng *set_zufall(int sec);
 
 int main () {
-  lattice *test = create_lattice(10, 20, 1);
+  lattice *test = create_lattice(3, 3, 1);
   gsl_rng *r = set_zufall(0);
-  for(int j = 0; j < 10; j++) {
-    printf("%lf\n", e_tot(test));
-    rand_spin(test, r);
+  rand_spin(test, r);
+  e_tot(test);
+  for(int i = 0; i < 9; i++){
+    printf("%i\t", test->spin[i]);
+    if ((i+1)%3 == 0) printf("\n");
   }
+  printf("%lf\n", test->e_tot);
   return 0;
 }
 
@@ -38,33 +40,34 @@ double e_tot(lattice *lat){
   for (int i = 0; i < y_max*x_max; i++){
     if (i - x_max < 0){
       if (i == 0){
-        e += J*spin[i]*(spin[i+1]+spin[i+x_max])/2;
+        e += J*spin[i]*(spin[i+1]+spin[i+x_max]+spin[i+x_max-1]+spin[x_max*y_max-x_max+i]);
       } else
       if (i == x_max-1){
-        e += J*spin[i]*(spin[i-1]+spin[i+x_max])/2;
+        e += J*spin[i]*(spin[i-1]+spin[i+x_max]+spin[i-x_max+1]+spin[i+x_max*y_max-x_max]);
       } else {
-        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i+x_max])/3;
+        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i+x_max]+spin[i+x_max*y_max-x_max]);
       }
     } else
     if (i + x_max >= x_max*y_max){
       if (i%x_max == 0){
-        e += J*spin[i]*(spin[i+1]+spin[i-x_max])/2;
+        e += J*spin[i]*(spin[i+1]+spin[i-x_max]+spin[i+x_max-1]+spin[i-x_max*y_max+x_max]);
       } else
       if ((i+1)%x_max == 0){
-        e += J*spin[i]*(spin[i-1]+spin[i-x_max])/2;
+        e += J*spin[i]*(spin[i-1]+spin[i-x_max]+spin[i-x_max*y_max+x_max]+spin[i-x_max+1]);
       } else {
-        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i-x_max])/3;
+        e += J*spin[i]*(spin[i-1]+spin[i+1]+spin[i-x_max]+spin[i-x_max*y_max+x_max]);
       }
     } else
     if (i%x_max == 0){
-      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max])/3;
+      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max]+spin[i+x_max-1]);
     } else
     if ((i+1)%x_max == 0){
-      e += J*spin[i]*(spin[i-x_max]+spin[i-1]+spin[i+x_max])/3;
+      e += J*spin[i]*(spin[i-x_max]+spin[i-1]+spin[i+x_max]+spin[i-x_max+1]);
     } else {
-      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max]+spin[i-1])/4;
+      e += J*spin[i]*(spin[i-x_max]+spin[i+1]+spin[i+x_max]+spin[i-1]);
     }
   }
+  lat->e_tot = -e;
   return -e;
 }
 

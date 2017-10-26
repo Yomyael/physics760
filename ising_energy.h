@@ -2,6 +2,7 @@
 #define ISING_ENERGY_H
 
 #include <stdlib.h>
+#include <math.h>
 
 #include <gsl/gsl_rng.h>
 
